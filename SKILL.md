@@ -12,7 +12,14 @@ Point this at an existing repo. It does one of two things:
 
 The output is the **Project Memory Kit**: a thin, always-loaded `PROJECT.md` spine plus surfaces that are *born on triggers*, not pre-created.
 
-**Where the files live:** all kit surfaces go in a `devkit/` folder at the repo root — `devkit/PROJECT.md`, `devkit/STATE.md`, `devkit/DECISIONS.md`, `devkit/JOURNAL.md`, `devkit/specs/` — so they don't mix with the project's own code/docs. Create `devkit/` if absent. All surfaces are colocated there, so the relative links inside the templates (`[STATE.md](STATE.md)`, `specs/…`) stay valid unchanged. When scanning an existing repo, also check the repo root and legacy locations — older installs may have these files there and should be **moved into `devkit/`** as part of the upgrade. The full doctrine ships *inside* the generated `PROJECT.md` (its `## Dev Memory Protocol` block) — so once installed, the repo is self-governing and needs no further reference to this skill.
+**Where the files live:** all kit surfaces go in a `devkit/` folder at the repo root — `devkit/PROJECT.md`, `devkit/STATE.md`, `devkit/DECISIONS.md`, `devkit/JOURNAL.md`, `devkit/specs/` — so they don't mix with the project's own code/docs. Create `devkit/` if absent. All surfaces are colocated there, so the relative links inside the templates (`[STATE.md](STATE.md)`, `specs/…`) stay valid unchanged. When scanning an existing repo, also check the repo root and legacy locations — older installs may have these files there and should be **moved into `devkit/`** as part of the upgrade.
+
+**Discovery pointer:** because the kit now lives in `devkit/` and a cold agent session auto-loads the root `CLAUDE.md` / `AGENTS.md` (not `devkit/PROJECT.md` by name), every install/upgrade must leave a pointer in **both** root `CLAUDE.md` and `AGENTS.md`. **Idempotent** — create the file if absent, append the block if missing, do nothing if a `devkit/` pointer is already present:
+
+```markdown
+## Dev Memory
+This project's dev memory lives in `devkit/`. At session start read `devkit/PROJECT.md` (the control plane) and follow its `## Dev Memory Protocol`. Other surfaces — STATE / DECISIONS / JOURNAL / specs — are in `devkit/` too.
+``` The full doctrine ships *inside* the generated `PROJECT.md` (its `## Dev Memory Protocol` block) — so once installed, the repo is self-governing and needs no further reference to this skill.
 
 ## Core principles (these are the whole point — internalize them)
 
@@ -62,6 +69,7 @@ State which branch you're taking and why, in one line.
    - Do **not** create `DECISIONS.md` / `JOURNAL.md` / `specs/` — they are born on their triggers (3rd decision · first non-trivial problem · a feature outliving one session). The embedded protocol tells the agent this.
 2. **Fill `devkit/PROJECT.md` from Phase 1.** Copy `assets/templates/PROJECT.md` into `devkit/` and replace every `{{placeholder}}` with real inferred content: Project Card, What This Is, Core Value, User & Problem (best-effort — mark guesses), Core Loop, Scope (Active from current work/issues · Out of Scope if stated), Invariants (only real always/never rules — security, architecture boundaries), Memory Map (keep the table as boilerplate; add a code-orientation row or two only if a path is genuinely non-obvious). Keep the `## Dev Memory Protocol` block **verbatim** — it is the self-bootstrapping manual. Leave no placeholder unfilled; if you truly can't infer a field, write a one-line `<!-- TODO: confirm -->` rather than fake content.
 3. **Show the draft, get approval, then write.** Present the filled `devkit/PROJECT.md` (and `devkit/STATE.md` if used) for review before writing to disk. This is a multi-file change — plan first.
+4. **Wire up discovery.** After writing, add the Dev Memory pointer block (above) to root `CLAUDE.md` and `AGENTS.md` (idempotent — create/append/skip).
 
 ### Phase 3b — Upgrade (another system present)
 
@@ -70,7 +78,7 @@ This is the high-value path. Four steps, approval-gated.
 1. **Diagnose.** Score the existing system against the rubric in `references/diagnosis.md`: always-loaded token weight (bloat), rot (stale maps, derivable file trees, dead links), no just-in-time loading (everything always in context), no volatility separation (cursor mixed into the stable spine), append-not-supersede decision logs, empty ceremony/stubs. Write a short diagnostic — name the 3-5 concrete weaknesses, not a generic lecture.
 2. **Map content → kit surfaces.** Read `references/migration.md` for per-system recipes (Cline Memory Bank, Agent OS, bloated PROJECT.md, scattered docs…). Decide where each piece of existing content lands (every kit surface destination is inside `devkit/`), what gets condensed, and what gets dropped — and *why* (only ever drop derivable or stale content, e.g. a checked-in file tree; never drop genuine decisions or rationale).
 3. **Present the migration plan.** A table: `source → destination (or dropped, with reason)` — destinations are paths under `devkit/`. State explicitly that originals will be **archived, not deleted** (move to `devkit/.memory-archive/<date>/`), so nothing is lost and the user can diff. Wait for approval. One round of adjustments.
-4. **Apply, then verify (Phase 4).** Write the new surfaces under `devkit/`, archive the originals, fix internal links (relative links between colocated surfaces are unchanged; only links pointing *into* the kit from files left outside `devkit/` need repathing).
+4. **Apply, then verify (Phase 4).** Write the new surfaces under `devkit/`, archive the originals, fix internal links (relative links between colocated surfaces are unchanged; only links pointing *into* the kit from files left outside `devkit/` need repathing), and add the Dev Memory pointer block (above) to root `CLAUDE.md` and `AGENTS.md` (idempotent).
 
 ### Phase 3c — Health check (kit already present)
 
@@ -87,6 +95,7 @@ Report findings and offer fixes. Don't rewrite a healthy file just to touch it.
 
 Run a final pass and report:
 - All kit surfaces live under `devkit/` (nothing left stranded at the repo root).
+- Root `CLAUDE.md` and `AGENTS.md` carry the Dev Memory pointer to `devkit/` (so a cold session finds the kit).
 - Spine `PROJECT.md` ≤ ~150 lines; volatile sections (State, Decisions digest) **last** (cache-stable prefix intact).
 - **No empty stubs** — every surface that exists has real content.
 - Lazy surfaces carry their triggers (`specs/*` open with `> Load when:`; the protocol block is intact).
