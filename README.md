@@ -59,7 +59,7 @@ The skill scans the repo, then either installs the kit (pre-filled) or proposes 
 
 ### Prefer to do it by hand?
 
-You don't need the skill at all. Copy `assets/templates/PROJECT.md` into your repo's root, fill in the `{{placeholders}}`, and leave the `## Dev Memory Protocol` block at the bottom **as-is** — that block is the manual. Keep `## State` inline at first; you're running on a single file. Let the other surfaces be *born on triggers*, never pre-created:
+You don't need the skill at all. Create a `devkit/` folder at your repo root (so the memory files don't mix with your code/docs), copy `assets/templates/PROJECT.md` into it, fill in the `{{placeholders}}`, and leave the `## Dev Memory Protocol` block at the bottom **as-is** — that block is the manual. Keep `## State` inline at first; you're running on a single file. Let the other surfaces be *born on triggers*, never pre-created:
 
 - `STATE.md` → the first time you ask "where was I?" (work spans sessions)
 - `DECISIONS.md` → on your 3rd recorded decision

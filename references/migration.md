@@ -4,7 +4,8 @@ Used in Phase 3b. The job is to **move and condense** existing knowledge into th
 
 ## General rules (all migrations)
 
-- **Archive, never delete.** Move every original into `.memory-archive/<YYYY-MM-DD>/` (preserving relative paths) *before* rewriting. The user can diff and recover. Say this in the plan.
+- **Archive, never delete.** Move every original into `devkit/.memory-archive/<YYYY-MM-DD>/` (preserving relative paths) *before* rewriting. The user can diff and recover. Say this in the plan.
+- **Destinations live in `devkit/`.** Every kit surface (`PROJECT.md`, `STATE.md`, `DECISIONS.md`, `JOURNAL.md`, `specs/`) is written under the repo's `devkit/` folder — create it if absent. The table below names surfaces by their short name; the actual path is `devkit/<that name>`.
 - **Condense, don't transcribe.** Migrating is a chance to cut bloat: drop derivable content (file trees, dir listings), fold duplicates, and collapse append-only sprawl into a superseded, newest-first form.
 - **Preserve the kit's two-tier shape.** Always-loaded = `PROJECT.md` (spine + inline State + Decisions digest). Everything else lazy. Don't recreate the old "load everything" pattern with new filenames.
 - **Born-on-trigger still applies.** Only create `STATE.md` / `DECISIONS.md` / `JOURNAL.md` / `specs/` if there's real content to put in them now. If the old system had no decision history, don't create `DECISIONS.md` — let it be born later.

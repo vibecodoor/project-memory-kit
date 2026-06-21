@@ -10,7 +10,9 @@ Point this at an existing repo. It does one of two things:
 - **No dev-memory present** → analyze the project and lay down the kit, pre-filled from what the repo already tells you.
 - **Some memory already exists** (a bloated `PROJECT.md`, an overloaded `CLAUDE.md`, a Cline Memory Bank, an Agent OS install, scattered `docs/` / `NOTES.md` / ADRs) → diagnose it against the kit's principles and **migrate it to the stronger shape without losing content**.
 
-The output is the **Project Memory Kit**: a thin, always-loaded `PROJECT.md` spine plus surfaces that are *born on triggers*, not pre-created. The full doctrine ships *inside* the generated `PROJECT.md` (its `## Dev Memory Protocol` block) — so once installed, the repo is self-governing and needs no further reference to this skill.
+The output is the **Project Memory Kit**: a thin, always-loaded `PROJECT.md` spine plus surfaces that are *born on triggers*, not pre-created.
+
+**Where the files live:** all kit surfaces go in a `devkit/` folder at the repo root — `devkit/PROJECT.md`, `devkit/STATE.md`, `devkit/DECISIONS.md`, `devkit/JOURNAL.md`, `devkit/specs/` — so they don't mix with the project's own code/docs. Create `devkit/` if absent. All surfaces are colocated there, so the relative links inside the templates (`[STATE.md](STATE.md)`, `specs/…`) stay valid unchanged. When scanning an existing repo, also check the repo root and legacy locations — older installs may have these files there and should be **moved into `devkit/`** as part of the upgrade. The full doctrine ships *inside* the generated `PROJECT.md` (its `## Dev Memory Protocol` block) — so once installed, the repo is self-governing and needs no further reference to this skill.
 
 ## Core principles (these are the whole point — internalize them)
 
@@ -36,7 +38,7 @@ Learn two things in parallel. Read, don't guess.
 - **Activity & horizon** — `git log` (age, cadence, contributors), open `TODO`/`FIXME`, whether work clearly spans many sessions. This decides whether `STATE.md` is justified from day one.
 
 **B. Existing memory artifacts** (decides install vs upgrade). Look for:
-- **The kit itself** — `PROJECT.md` with a `## Dev Memory Protocol` block, `STATE.md`, `DECISIONS.md`, `JOURNAL.md`, `specs/`.
+- **The kit itself** — `PROJECT.md` with a `## Dev Memory Protocol` block, `STATE.md`, `DECISIONS.md`, `JOURNAL.md`, `specs/`. Check **both** `devkit/` (the current target location) and the repo root (where older installs put them — those get relocated into `devkit/` on upgrade).
 - **Rival / ad-hoc systems** — see `references/diagnosis.md` for detection signatures (Cline Memory Bank, Agent OS, spec-kit, Backlog.md, ADR dirs, an overloaded `CLAUDE.md`/`AGENTS.md`, scattered `NOTES.md`/`docs/`).
 
 Read `references/diagnosis.md` now if any memory-like artifact is present — it has the signatures and the bloat/rot rubric.
@@ -46,32 +48,34 @@ Read `references/diagnosis.md` now if any memory-like artifact is present — it
 | What you found | Path |
 |---|---|
 | Nothing memory-like | **Phase 3a — Install** |
-| The kit is already here | **Phase 3c — Health check** (it's already the target shape; tune, don't migrate) |
+| The kit is already in `devkit/` | **Phase 3c — Health check** (it's already the target shape + location; tune, don't migrate) |
+| The kit exists but at the repo root (older install) | **Phase 3b — Upgrade** — relocate the surfaces into `devkit/` (fix links), then health-check |
 | Another / ad-hoc system | **Phase 3b — Upgrade** |
 
 State which branch you're taking and why, in one line.
 
 ### Phase 3a — Install (no memory present)
 
-1. **Choose the starting shape by earned growth — start minimal.**
-   - Default: a single **`PROJECT.md`** (spine + inline `## State` + a ≤7-line `## Decisions` digest). Nothing else.
-   - Add **`STATE.md`** at init *only if* the repo clearly has multi-session work in flight (active git history, a half-done feature) — then a cold resume needs a real cursor on day one. Otherwise leave State inline; it graduates on the first "where was I?".
+1. **Choose the starting shape by earned growth — start minimal.** (All paths below are inside `devkit/` — create the folder.)
+   - Default: a single **`devkit/PROJECT.md`** (spine + inline `## State` + a ≤7-line `## Decisions` digest). Nothing else.
+   - Add **`devkit/STATE.md`** at init *only if* the repo clearly has multi-session work in flight (active git history, a half-done feature) — then a cold resume needs a real cursor on day one. Otherwise leave State inline; it graduates on the first "where was I?".
    - Do **not** create `DECISIONS.md` / `JOURNAL.md` / `specs/` — they are born on their triggers (3rd decision · first non-trivial problem · a feature outliving one session). The embedded protocol tells the agent this.
-2. **Fill `PROJECT.md` from Phase 1.** Copy `assets/templates/PROJECT.md` and replace every `{{placeholder}}` with real inferred content: Project Card, What This Is, Core Value, User & Problem (best-effort — mark guesses), Core Loop, Scope (Active from current work/issues · Out of Scope if stated), Invariants (only real always/never rules — security, architecture boundaries), Memory Map (keep the table as boilerplate; add a code-orientation row or two only if a path is genuinely non-obvious). Keep the `## Dev Memory Protocol` block **verbatim** — it is the self-bootstrapping manual. Leave no placeholder unfilled; if you truly can't infer a field, write a one-line `<!-- TODO: confirm -->` rather than fake content.
-3. **Show the draft, get approval, then write.** Present the filled `PROJECT.md` (and `STATE.md` if used) for review before writing to disk. This is a multi-file change — plan first.
+2. **Fill `devkit/PROJECT.md` from Phase 1.** Copy `assets/templates/PROJECT.md` into `devkit/` and replace every `{{placeholder}}` with real inferred content: Project Card, What This Is, Core Value, User & Problem (best-effort — mark guesses), Core Loop, Scope (Active from current work/issues · Out of Scope if stated), Invariants (only real always/never rules — security, architecture boundaries), Memory Map (keep the table as boilerplate; add a code-orientation row or two only if a path is genuinely non-obvious). Keep the `## Dev Memory Protocol` block **verbatim** — it is the self-bootstrapping manual. Leave no placeholder unfilled; if you truly can't infer a field, write a one-line `<!-- TODO: confirm -->` rather than fake content.
+3. **Show the draft, get approval, then write.** Present the filled `devkit/PROJECT.md` (and `devkit/STATE.md` if used) for review before writing to disk. This is a multi-file change — plan first.
 
 ### Phase 3b — Upgrade (another system present)
 
 This is the high-value path. Four steps, approval-gated.
 
 1. **Diagnose.** Score the existing system against the rubric in `references/diagnosis.md`: always-loaded token weight (bloat), rot (stale maps, derivable file trees, dead links), no just-in-time loading (everything always in context), no volatility separation (cursor mixed into the stable spine), append-not-supersede decision logs, empty ceremony/stubs. Write a short diagnostic — name the 3-5 concrete weaknesses, not a generic lecture.
-2. **Map content → kit surfaces.** Read `references/migration.md` for per-system recipes (Cline Memory Bank, Agent OS, bloated PROJECT.md, scattered docs…). Decide where each piece of existing content lands, what gets condensed, and what gets dropped — and *why* (only ever drop derivable or stale content, e.g. a checked-in file tree; never drop genuine decisions or rationale).
-3. **Present the migration plan.** A table: `source → destination (or dropped, with reason)`. State explicitly that originals will be **archived, not deleted** (move to `.memory-archive/<date>/` or `docs/legacy/`), so nothing is lost and the user can diff. Wait for approval. One round of adjustments.
-4. **Apply, then verify (Phase 4).** Write the new surfaces, archive the originals, fix internal links.
+2. **Map content → kit surfaces.** Read `references/migration.md` for per-system recipes (Cline Memory Bank, Agent OS, bloated PROJECT.md, scattered docs…). Decide where each piece of existing content lands (every kit surface destination is inside `devkit/`), what gets condensed, and what gets dropped — and *why* (only ever drop derivable or stale content, e.g. a checked-in file tree; never drop genuine decisions or rationale).
+3. **Present the migration plan.** A table: `source → destination (or dropped, with reason)` — destinations are paths under `devkit/`. State explicitly that originals will be **archived, not deleted** (move to `devkit/.memory-archive/<date>/`), so nothing is lost and the user can diff. Wait for approval. One round of adjustments.
+4. **Apply, then verify (Phase 4).** Write the new surfaces under `devkit/`, archive the originals, fix internal links (relative links between colocated surfaces are unchanged; only links pointing *into* the kit from files left outside `devkit/` need repathing).
 
 ### Phase 3c — Health check (kit already present)
 
 The shape is right; look for drift, not migration:
+- **Location** — confirm the surfaces are in `devkit/`. If a healthy kit is sitting at the repo root (older install), that's the one drift worth fixing here: relocate into `devkit/` and re-point any inbound links.
 - **Bloat** — `PROJECT.md` over ~150 lines, or a Decisions digest / inline State that outgrew its cap → extract per the split rules.
 - **Empty stubs** — a `JOURNAL.md`/`DECISIONS.md`/`specs/*` that was pre-created and is still hollow → it violates earned-growth; recommend deletion.
 - **Rot** — a checked-in file tree in the Memory Map, stale `Last touched`, dead links, a STATE cursor that contradicts PROJECT.
@@ -82,6 +86,7 @@ Report findings and offer fixes. Don't rewrite a healthy file just to touch it.
 ### Phase 4 — Verify
 
 Run a final pass and report:
+- All kit surfaces live under `devkit/` (nothing left stranded at the repo root).
 - Spine `PROJECT.md` ≤ ~150 lines; volatile sections (State, Decisions digest) **last** (cache-stable prefix intact).
 - **No empty stubs** — every surface that exists has real content.
 - Lazy surfaces carry their triggers (`specs/*` open with `> Load when:`; the protocol block is intact).
@@ -92,16 +97,16 @@ Run a final pass and report:
 Final report, ≤5 lines:
 
 ```
-✓ Installed/Upgraded: PROJECT.md (+ STATE.md)
+✓ Installed/Upgraded: devkit/PROJECT.md (+ devkit/STATE.md)
 ✓ Migrated: 4 source files → 2 surfaces; 1 file-tree dropped (derivable)
-✓ Archived originals → .memory-archive/2026-06-08/
+✓ Archived originals → devkit/.memory-archive/2026-06-08/
 ⚠ Deferred (born on trigger): DECISIONS.md, JOURNAL.md, specs/
 → Next: <the concrete first action, matching STATE's Now>
 ```
 
 ## Templates
 
-Bundled in `assets/templates/` (the canonical templates). Copy, then fill — never invent a different structure:
+Bundled in `assets/templates/` (the canonical templates). Copy into `devkit/`, then fill — never invent a different structure:
 
 | File | Used when |
 |---|---|
